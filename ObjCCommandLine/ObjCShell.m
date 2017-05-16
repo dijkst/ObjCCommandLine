@@ -27,7 +27,7 @@ static BOOL     CMD;
 
 + (NSString *)SHELL {
     if (!SHELL) {
-        SHELL = [[[NSProcessInfo processInfo] environment] objectForKey:@"SHELL"] ? : @"/bin/bash";
+        SHELL = @"/bin/bash";
     }
     return SHELL;
 }
@@ -46,7 +46,7 @@ static BOOL     CMD;
 
 + (BOOL)isCMDEnvironment {
     NSDictionary *env = [[NSProcessInfo processInfo] environment];
-    if ([env objectForKey:@"TERM"] != nil || [env objectForKey:@"SSH_CLIENT"] != nil) {
+    if ([env objectForKey:@"SSH_CLIENT"] != nil) {
         return YES;
     }
     return CMD;
@@ -77,7 +77,7 @@ static BOOL     CMD;
     _errorData  = [NSMutableData data];
     NSArray *args = nil;
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"NSDocumentRevisionsDebugMode"] || (!env && ![[self class] isCMDEnvironment])) {
-        args = @[@"-l", @"-i", @"-c", command];
+        args = @[@"-l", @"-c", command];
     } else {
         args = @[@"-c", command];
     }
