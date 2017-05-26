@@ -43,18 +43,18 @@
             ret = [NSNull null];
             break;
         case typeChar:
-        case 'utxt':
+        case typeUnicodeText:
             ret = [self stringValue];
             break;
-        case 'long':
-        case 'shor':
+        case typeSInt32:
+        case typeSInt16:
             ret = [NSNumber numberWithLong:[self int32Value]];
             break;
-        case 'doub':
-        case 'sing':
+        case typeIEEE64BitFloatingPoint:
+        case typeIEEE32BitFloatingPoint:
             ret = [NSNumber numberWithDouble:[[self stringValue] doubleValue]];
             break;
-        case 'bool':
+        case typeBoolean:
             ret = [NSNumber numberWithBool:[[self stringValue] boolValue]];
             break;
         default:
