@@ -21,6 +21,8 @@
 @property (nonatomic, readonly) NSData *outputData;
 @property (nonatomic, readonly) NSData *errorData;
 
+@property (nonatomic, readonly) int terminationStatus;
+
 @property (nonatomic, weak) id<ObjCShellDelegate> delegate;
 
 + (NSString *)scriptForName:(NSString *)name ofType:(NSString *)type;

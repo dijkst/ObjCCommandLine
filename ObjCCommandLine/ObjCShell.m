@@ -63,6 +63,10 @@ static BOOL     CMD;
     return [NSString stringWithFormat:@"osascript -e \"do shell script \\\"%@\\\" with administrator privileges\"", command];
 }
 
+- (int)terminationStatus {
+    return self.task.terminationStatus;
+}
+
 - (int)executeCommand:(NSString *)command {
     return [self executeCommand:command inWorkingDirectory:nil];
 }
