@@ -28,12 +28,11 @@
 + (NSString *)scriptForName:(NSString *)name ofType:(NSString *)type;
 + (NSString *)commandWithAdministrator:(NSString *)command;
 
-+ (void)setSHELL:(NSString *)shell;
-+ (NSString *)SHELL;
+@property (nonatomic, strong, class) NSString *shell;
+@property (nonatomic, strong, class) NSDictionary *environment;
+@property (nonatomic, assign, class) BOOL isCMDEnvironment;
 
 + (BOOL)isSudoEnvironment;
-+ (BOOL)isCMDEnvironment;
-+ (void)setIsCMDEnvironment:(BOOL)cmd;
 
 - (int)executeCommand:(NSString *)command;
 - (int)executeCommand:(NSString *)command inWorkingDirectory:(NSString *)path;

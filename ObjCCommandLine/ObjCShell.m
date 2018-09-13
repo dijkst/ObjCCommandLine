@@ -4,8 +4,9 @@
 #import "ObjCShell.h"
 #import "AMShellWrapper.h"
 
-static NSString *SHELL;
-static BOOL     CMD;
+static NSString     *SHELL;
+static NSDictionary *ENV;
+static BOOL         CMD;
 
 @interface ObjCShell () <AMShellWrapperDelegate> {
     dispatch_semaphore_t sem;
@@ -25,14 +26,22 @@ static BOOL     CMD;
     return self;
 }
 
-+ (NSString *)SHELL {
++ (NSDictionary *)environment {
+    return ENV;
+}
+
++ (void)setEnvironment:(NSDictionary *)environment {
+    ENV = environment;
+}
+
++ (NSString *)shell {
     if (!SHELL) {
         SHELL = @"/bin/bash";
     }
     return SHELL;
 }
 
-+ (void)setSHELL:(NSString *)shell {
++ (void)setShell:(NSString *)shell {
     SHELL = shell;
 }
 
@@ -79,13 +88,14 @@ static BOOL     CMD;
     sem         = dispatch_semaphore_create(0);
     _outputData = [NSMutableData data];
     _errorData  = [NSMutableData data];
+    if (!env) env = ENV;
     NSArray *args = nil;
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"NSDocumentRevisionsDebugMode"] || (!env && ![[self class] isCMDEnvironment])) {
-        args = @[@"-l", @"-c", command];
-    } else {
+    if (env || [[self class] isCMDEnvironment]) {
         args = @[@"-c", command];
+    } else {
+        args = @[@"-l", @"-c", command];
     }
-    self.task = [[AMShellWrapper alloc] initWithLaunchPath:[[self class] SHELL]
+    self.task = [[AMShellWrapper alloc] initWithLaunchPath:[[self class] shell]
                                           workingDirectory:path
                                                environment:env
                                                  arguments:args
