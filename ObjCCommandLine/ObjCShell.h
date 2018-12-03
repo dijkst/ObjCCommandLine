@@ -29,7 +29,7 @@
 + (NSString *)commandWithAdministrator:(NSString *)command;
 
 @property (nonatomic, strong, class) NSString *shell;
-@property (nonatomic, strong, class) NSDictionary *environment;
+@property (nonatomic, strong, class) NSDictionary<NSString *, NSString *> *environment;
 @property (nonatomic, assign, class) BOOL isCMDEnvironment;
 
 + (BOOL)isSudoEnvironment;
