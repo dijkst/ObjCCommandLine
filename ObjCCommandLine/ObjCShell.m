@@ -3,6 +3,7 @@
 
 #import "ObjCShell.h"
 #import "AMShellWrapper.h"
+#include "sys/pipe.h"
 
 static NSString     *SHELL;
 static NSDictionary *ENV;
@@ -17,7 +18,12 @@ static BOOL         CMD;
 
 @end
 
-@implementation ObjCShell
+@implementation ObjCShell {
+    // log 返回的 Data 在缓冲区中内，可能由于空间不够，导致不足以存放完整的字符编码。
+    // 这部分字节应该合并到下次缓冲区首部。
+    NSData *dryOutputData;
+    NSData *dryErrorData;
+}
 
 - (id)init {
     if (self = [super init]) {
@@ -136,8 +142,10 @@ static BOOL         CMD;
             [self.delegate logOutputData:data];
         }
         if ([self.delegate respondsToSelector:@selector(logOutputString:)]) {
-            NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            [self.delegate logOutputString:output];
+            NSString *output = [self decodeData:data dryPool:&self->dryOutputData];
+            if (output) {
+                [self.delegate logOutputString:output];
+            }
         }
         [(NSMutableData *) self.outputData appendData:data];
     });
@@ -149,11 +157,53 @@ static BOOL         CMD;
             [self.delegate logErrorData:data];
         }
         if ([self.delegate respondsToSelector:@selector(logErrorString:)]) {
-            NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            [self.delegate logErrorString:output];
+            NSString *output = [self decodeData:data dryPool:&self->dryErrorData];
+            if (output) {
+                [self.delegate logErrorString:output];
+            }
         }
         [(NSMutableData *) self.errorData appendData:data];
     });
+}
+
+- (NSString *)decodeData:(NSData *)data dryPool:(NSData * __strong *)dryPool {
+    NSMutableData *fullData = [NSMutableData dataWithData:*dryPool];
+    [fullData appendData:data];
+    *dryPool = nil;
+    if (data.length == BIG_PIPE_SIZE) {
+        // 达到缓冲区最大值，最后一个字符可能存在丢失的字节
+        static int length = 4;
+        Byte *bytedata = (Byte*)malloc(length);
+        [data getBytes:bytedata range:NSMakeRange(data.length - length, length)];
+        int expectBit = 1;
+        int actualBit = 1;
+        for (; actualBit <= length; actualBit++) {
+            // Binary    Hex                 Comments
+            // 0xxxxxxx  0x00..0x7F   Only byte of a 1-byte character encoding
+            // 10xxxxxx  0x80..0xBF   Continuation bytes (1-3 continuation bytes)
+            // 110xxxxx  0xC0..0xDF   First byte of a 2-byte character encoding
+            // 1110xxxx  0xE0..0xEF   First byte of a 3-byte character encoding
+            // 11110xxx  0xF0..0xF7   First byte of a 4-byte character encoding
+            Byte byte = bytedata[length - actualBit];
+            if ((byte >> 6) == 2) {
+                // Continuation bytes
+            } else {
+                while (expectBit <= length && ((byte << (expectBit - 1)) & 0x80) != 0) {
+                    expectBit++;
+                }
+                if (expectBit > 1) {
+                    expectBit--;
+                }
+                break;
+            }
+        }
+        free(bytedata);
+        if (expectBit > actualBit) {
+            *dryPool = [data subdataWithRange:NSMakeRange(data.length - actualBit, actualBit)];
+            [fullData resetBytesInRange:NSMakeRange(fullData.length - actualBit, actualBit)];
+        }
+    }
+    return [[NSString alloc] initWithData:fullData encoding:NSUTF8StringEncoding];
 }
 
 @end
