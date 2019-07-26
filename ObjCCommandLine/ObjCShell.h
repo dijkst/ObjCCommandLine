@@ -16,6 +16,8 @@
 
 @interface ObjCShell : NSObject
 
+@property (nonatomic, assign) BOOL useLoginEnironment;
+
 @property (nonatomic, strong) NSString *outputString;
 @property (nonatomic, strong) NSString *errorString;
 @property (nonatomic, readonly) NSData *outputData;

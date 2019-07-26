@@ -28,6 +28,7 @@ static BOOL         CMD;
 - (id)init {
     if (self = [super init]) {
         _queue = dispatch_queue_create("shell.output", NULL);
+        _useLoginEnironment = YES;
     }
     return self;
 }
@@ -96,7 +97,7 @@ static BOOL         CMD;
     _errorData  = [NSMutableData data];
     if (!env) env = ENV;
     NSArray *args = nil;
-    if (env || [[self class] isCMDEnvironment]) {
+    if (env || [[self class] isCMDEnvironment] || !self.useLoginEnironment) {
         args = @[@"-c", command];
     } else {
         args = @[@"-l", @"-c", command];
@@ -113,10 +114,10 @@ static BOOL         CMD;
 
     // 必须在主线程，
     [self.task performSelectorOnMainThread:@selector(startProcess) withObject:nil waitUntilDone:YES];
-    //    while (!self.task.finish) {
-    //        [[NSRunLoop currentRunLoop] runMode:NSRunLoopCommonModes beforeDate:[NSDate distantFuture]];
-    //    }
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    while (!self.task.finish) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+//    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     self.outputString = [[[NSString alloc] initWithData:self.outputData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     self.errorString  = [[[NSString alloc] initWithData:self.errorData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
