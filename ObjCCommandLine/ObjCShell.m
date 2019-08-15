@@ -3,17 +3,39 @@
 
 #import "ObjCShell.h"
 #import "AMShellWrapper.h"
+#import "TTYShellWrapper.h"
 #include "sys/pipe.h"
+
+static struct termios STDINSettings;
+
+void rawSTDIN(void(^block)(void)) {
+    struct termios oldSettings;
+    tcgetattr(STDIN_FILENO, &oldSettings);
+    struct termios settings;
+    tcgetattr(STDIN_FILENO, &settings);
+    cfmakeraw(&settings);
+    tcsetattr(STDIN_FILENO, TCSANOW, &settings);
+    block();
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldSettings);
+}
+
+void storeSTDIN() {
+    tcgetattr(STDIN_FILENO, &STDINSettings);
+}
+
+void resetSTDIN() {
+    tcsetattr(STDIN_FILENO, TCSANOW, &STDINSettings);
+}
 
 static NSString     *SHELL;
 static NSDictionary *ENV;
 static BOOL         CMD;
 
-@interface ObjCShell () <AMShellWrapperDelegate> {
+@interface ObjCShell () <ObjCShellWrapperDelegate> {
     dispatch_semaphore_t sem;
 }
 
-@property (nonatomic, strong) AMShellWrapper   *task;
+@property (nonatomic, strong) NSObject<ObjCShellWrapperProtocol> *task;
 @property (nonatomic, strong) dispatch_queue_t queue;
 
 @end
@@ -23,12 +45,19 @@ static BOOL         CMD;
     // 这部分字节应该合并到下次缓冲区首部。
     NSData *dryOutputData;
     NSData *dryErrorData;
+
+    NSRunLoop *runLoop;
 }
 
 - (id)init {
+    return [self initWithTTY:false];
+}
+
+- (instancetype)initWithTTY:(BOOL)tty {
     if (self = [super init]) {
         _queue = dispatch_queue_create("shell.output", NULL);
         _useLoginEnironment = YES;
+        _useTTY = tty;
     }
     return self;
 }
@@ -102,22 +131,35 @@ static BOOL         CMD;
     } else {
         args = @[@"-l", @"-c", command];
     }
-    self.task = [[AMShellWrapper alloc] initWithLaunchPath:[[self class] shell]
-                                          workingDirectory:path
-                                               environment:env
-                                                 arguments:args
-                                                   context:NULL];
+    Class wrapper = nil;
+    if (_useTTY) {
+        wrapper = [TTYShellWrapper class];
+    } else {
+        wrapper = [AMShellWrapper class];
+    }
+    self.task = [[wrapper alloc] initWithLaunchPath:[[self class] shell]
+                                   workingDirectory:path
+                                        environment:env
+                                          arguments:args
+                                            context:NULL];
 
     self.task.delegate = self;
 
-
-
-    // 必须在主线程，
-    [self.task performSelectorOnMainThread:@selector(startProcess) withObject:nil waitUntilDone:YES];
-    while (!self.task.finish) {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    runLoop = [NSRunLoop currentRunLoop];
+    if (_useTTY) {
+        rawSTDIN(^{
+            [self.task startProcess];
+            while (!self.task.finish) {
+                [self->runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+            }
+        });
+    } else {
+        // 必须在主线程
+        [self.task performSelectorOnMainThread:@selector(startProcess) withObject:nil waitUntilDone:YES];
+        while (!self.task.finish) {
+            [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
     }
-//    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     self.outputString = [[[NSString alloc] initWithData:self.outputData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     self.errorString  = [[[NSString alloc] initWithData:self.errorData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
@@ -135,6 +177,7 @@ static BOOL         CMD;
 
 - (void)processFinished:(AMShellWrapper *)wrapper withTerminationStatus:(int)resultCode {
     dispatch_semaphore_signal(sem);
+    CFRunLoopStop(runLoop.getCFRunLoop);
 }
 
 - (void)process:(AMShellWrapper *)wrapper appendOutput:(NSData *)data {
@@ -148,7 +191,7 @@ static BOOL         CMD;
                 [self.delegate logOutputString:output];
             }
         }
-        [(NSMutableData *) self.outputData appendData:data];
+        [(NSMutableData *)self.outputData appendData:data];
     });
 }
 

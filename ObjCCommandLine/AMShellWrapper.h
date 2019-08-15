@@ -20,41 +20,13 @@
 
 
 #import <Foundation/Foundation.h>
+#import "ObjCShellWrapper.h"
 
 #define AMShellWrapperProcessFinishedNotification @"AMShellWrapperProcessFinishedNotification"
 #define AMShellWrapperProcessFinishedNotificationTaskKey @"AMShellWrapperProcessFinishedNotificationTaskKey"
 #define AMShellWrapperProcessFinishedNotificationTerminationStatusKey @"AMShellWrapperProcessFinishedNotificationTerminationStatusKey"
 
-
-@class AMShellWrapper;
-
-
-@protocol AMShellWrapperDelegate
-// implement this protocol to control your AMShellWrapper object:
-
-- (void)process:(AMShellWrapper *)wrapper appendOutput:(NSData *)output;
-// output from stdout
-
-- (void)process:(AMShellWrapper *)wrapper appendError:(NSData *)error;
-// output from stderr
-
-- (void)processStarted:(AMShellWrapper *)wrapper;
-// This method is a callback which your controller can use to do other initialization
-// when a process is launched.
-
-- (void)processFinished:(AMShellWrapper *)wrapper withTerminationStatus:(int)resultCode;
-// This method is a callback which your controller can use to do other cleanup
-// when a process is halted.
-
-// AMShellWrapper posts a AMShellWrapperProcessFinishedNotification when a process finished.
-// The userInfo of the notification contains the corresponding NSTask ((NSTask *), key @"task")
-// and the result code ((NSNumber *), key @"resultCode")
-// ! notification removed since it prevented the task from getting deallocated
-
-@end
-
-
-@interface AMShellWrapper : NSObject {
+@interface AMShellWrapper : NSObject<ObjCShellWrapperProtocol> {
     NSTask       *task;
     void         *context;
     NSString     *workingDirectory;
@@ -74,27 +46,12 @@
 
 @property (nonatomic, assign) BOOL finish;
 
-@property (nonatomic, weak) id <AMShellWrapperDelegate>delegate;
-@property (nonatomic, assign) int                      terminationStatus;
-
-- (id)initWithLaunchPath:(NSString *)launch
-        workingDirectory:(NSString *)directoryPath
-             environment:(NSDictionary *)env
-               arguments:(NSArray *)args
-                 context:(void *)pointer;
-
+@property (nonatomic, weak) id<ObjCShellWrapperDelegate> delegate;
+@property (nonatomic, assign) int terminationStatus;
 
 - (void *)context;
 
-- (void)startProcess;
-// This method launches the process, setting up asynchronous feedback notifications.
-
-- (void)stopProcess;
-// This method stops the process, stoping asynchronous feedback notifications.
-
-- (void)appendInput:(NSData *)input;
 // input to stdin
 - (void)closeInput;
-
 
 @end
