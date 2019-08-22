@@ -4,6 +4,7 @@
 #import "ObjCShell.h"
 #import "AMShellWrapper.h"
 #import "TTYShellWrapper.h"
+#import "ObjCArgumentParser.h"
 #include "sys/pipe.h"
 
 static struct termios STDINSettings;
@@ -126,18 +127,21 @@ static BOOL         CMD;
     _errorData  = [NSMutableData data];
     if (!env) env = ENV;
     NSArray *args = nil;
-    if (env || [[self class] isCMDEnvironment] || !self.useLoginEnironment) {
-        args = @[@"-c", command];
-    } else {
-        args = @[@"-l", @"-c", command];
-    }
     Class wrapper = nil;
+    NSString *launch = [[self class] shell];
     if (_useTTY) {
         wrapper = [TTYShellWrapper class];
+        args = argumentParse(command);
+        launch = [args firstObject];
     } else {
         wrapper = [AMShellWrapper class];
+        if (env || [[self class] isCMDEnvironment] || !self.useLoginEnironment) {
+            args = @[@"-c", command];
+        } else {
+            args = @[@"-l", @"-c", command];
+        }
     }
-    self.task = [[wrapper alloc] initWithLaunchPath:[[self class] shell]
+    self.task = [[wrapper alloc] initWithLaunchPath:launch
                                    workingDirectory:path
                                         environment:env
                                           arguments:args

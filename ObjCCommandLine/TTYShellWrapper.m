@@ -31,8 +31,8 @@
 - (id)initWithLaunchPath:(NSString *)launch workingDirectory:(NSString *)directoryPath environment:(NSDictionary *)env arguments:(NSArray *)args context:(void *)pointer {
     if ((self = [super init])) {
         context            = pointer;
-        launchPath         = @"yarn";
-        arguments          = @[@"yarn", @"init"];
+        launchPath         = launch;
+        arguments          = args;
         environment        = env;
         workingDirectory   = directoryPath;
         _terminationStatus = -1;
