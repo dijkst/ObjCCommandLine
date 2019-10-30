@@ -28,7 +28,7 @@
 
 
 #import "AMShellWrapper.h"
-
+#import "ObjCShell.h"
 
 @implementation AMShellWrapper
 
@@ -133,16 +133,20 @@
         if (stderrPipe == nil)         // we have to handle this ourselves:
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(getData:) name:NSFileHandleReadCompletionNotification object:stderrHandle];
 
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(waitData:) name:NSFileHandleDataAvailableNotification object:[NSFileHandle fileHandleWithStandardInput]];
-        
+        if (ObjCShell.isCMDEnvironment) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(waitData:) name:NSFileHandleDataAvailableNotification object:[NSFileHandle fileHandleWithStandardInput]];
+        }
+
         // We tell the file handle to go ahead and read in the background asynchronously,
         // and notify us via the callback registered above when we signed up as an observer.
         // The file handle will send a NSFileHandleReadCompletionNotification when it has
         // data that is available.
         [stdoutHandle readInBackgroundAndNotifyForModes:@[NSRunLoopCommonModes]];
         [stderrHandle readInBackgroundAndNotifyForModes:@[NSRunLoopCommonModes]];
-        [[NSFileHandle fileHandleWithStandardInput] waitForDataInBackgroundAndNotifyForModes:@[NSRunLoopCommonModes]];
-        
+        if (ObjCShell.isCMDEnvironment) {
+            [[NSFileHandle fileHandleWithStandardInput] waitForDataInBackgroundAndNotifyForModes:@[NSRunLoopCommonModes]];
+        }
+
         // since waiting for the output pipes to run dry seems unreliable in terms of
         // deciding wether the task has died, we go the 'clean' route and wait for a notification
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(taskStopped:) name:NSTaskDidTerminateNotification object:task];

@@ -181,7 +181,9 @@ static BOOL         CMD;
 
 - (void)processFinished:(AMShellWrapper *)wrapper withTerminationStatus:(int)resultCode {
     dispatch_semaphore_signal(sem);
-    CFRunLoopStop(runLoop.getCFRunLoop);
+    if (runLoop) {
+        CFRunLoopStop(runLoop.getCFRunLoop);
+    }
 }
 
 - (void)process:(AMShellWrapper *)wrapper appendOutput:(NSData *)data {

@@ -7,6 +7,7 @@
 //
 
 #import "TTYShellWrapper.h"
+#import "ObjCShell.h"
 
 #include <unistd.h>
 #include <util.h>
@@ -22,6 +23,9 @@
 
     NSFileHandle *fileHandle;
     pid_t        childProcessID;
+
+    BOOL         stdoutEmpty;
+    BOOL         taskDidTerminate;
 }
 
 - (void)dealloc {
@@ -41,26 +45,29 @@
 }
 
 - (void)startProcess {
-    NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(getInput:) name:NSFileHandleDataAvailableNotification object:inputHandle];
-    [inputHandle waitForDataInBackgroundAndNotify];
+    if (ObjCShell.isCMDEnvironment) {
+        NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(getInput:) name:NSFileHandleDataAvailableNotification object:inputHandle];
+        [inputHandle waitForDataInBackgroundAndNotify];
+    }
 
     int amaster;
     pid_t pid = forkpty(&amaster, nil, nil, nil);
     if (pid > 0) {
         fileHandle = [[NSFileHandle alloc] initWithFileDescriptor:amaster closeOnDealloc:YES];
         childProcessID = pid;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-            while (!self.finish) {
+        dispatch_async(dispatch_queue_create("TTY Shell Reader Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
+            while (!self->taskDidTerminate) {
                 [self appendOutput:self->fileHandle.availableData];
             }
+            self->stdoutEmpty = YES;
+            [self cleanup];
         });
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+        dispatch_async(dispatch_queue_create("TTY Shell Wait Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
             int status = 0;
             waitpid(self->childProcessID, &status, 0);
-            self.finish = YES;
             self.terminationStatus = status;
-            [self.delegate processFinished:self withTerminationStatus:self.terminationStatus];
+            self->taskDidTerminate = YES;
         });
     } else if (pid == 0) {
         setsid();
@@ -130,6 +137,11 @@
 
 - (void)stopProcess {
     kill(childProcessID, 1);
+}
+
+- (void)cleanup {
+    [self.delegate processFinished:self withTerminationStatus:self.terminationStatus];
+    self.finish = YES;
 }
 
 @end
