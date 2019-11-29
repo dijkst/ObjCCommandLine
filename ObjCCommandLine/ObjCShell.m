@@ -149,6 +149,14 @@ static BOOL         CMD;
 
     self.task.delegate = self;
 
+    if (ObjCShell.isCMDEnvironment) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
+            [inputHandle waitForDataInBackgroundAndNotify];
+        });
+    }
+
     runLoop = [NSRunLoop currentRunLoop];
     if (_useTTY) {
         rawSTDIN(^{

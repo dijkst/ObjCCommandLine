@@ -48,7 +48,6 @@
     if (ObjCShell.isCMDEnvironment) {
         NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(getInput:) name:NSFileHandleDataAvailableNotification object:inputHandle];
-        [inputHandle waitForDataInBackgroundAndNotify];
     }
 
     int amaster;

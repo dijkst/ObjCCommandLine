@@ -143,9 +143,6 @@
         // data that is available.
         [stdoutHandle readInBackgroundAndNotifyForModes:@[NSRunLoopCommonModes]];
         [stderrHandle readInBackgroundAndNotifyForModes:@[NSRunLoopCommonModes]];
-        if (ObjCShell.isCMDEnvironment) {
-            [[NSFileHandle fileHandleWithStandardInput] waitForDataInBackgroundAndNotifyForModes:@[NSRunLoopCommonModes]];
-        }
 
         // since waiting for the output pipes to run dry seems unreliable in terms of
         // deciding wether the task has died, we go the 'clean' route and wait for a notification
