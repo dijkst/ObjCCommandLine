@@ -103,8 +103,18 @@ static BOOL         CMD;
 }
 
 + (NSString *)commandWithAdministrator:(NSString *)command {
-    if ([self isCMDEnvironment]) {
-        return [NSString stringWithFormat:@"sudo -S %@", command];
+    return [self commandWithAdministrator:command sudo:[self isCMDEnvironment] prompt:nil];
+}
+
++ (NSString *)commandWithAdministrator:(NSString *)command sudo:(BOOL)sudo prompt:(NSString *)prompt {
+    if (sudo) {
+        if (prompt) {
+            return [NSString stringWithFormat:@"sudo -S -p \"%@\" -- sh -c \"%@\"", prompt, command];
+        }
+        return [NSString stringWithFormat:@"sudo -S -- sh -c \"%@\"", command];
+    }
+    if (prompt) {
+        return [NSString stringWithFormat:@"osascript -e \"do shell script \\\"%@\\\" with prompt \\\"%@\\\" with administrator privileges\"", command, prompt];
     }
     return [NSString stringWithFormat:@"osascript -e \"do shell script \\\"%@\\\" with administrator privileges\"", command];
 }

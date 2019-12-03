@@ -34,6 +34,7 @@
 
 + (NSString *)scriptForName:(NSString *)name ofType:(NSString *)type;
 + (NSString *)commandWithAdministrator:(NSString *)command;
++ (NSString *)commandWithAdministrator:(NSString *)command sudo:(BOOL)sudo prompt:(NSString *)prompt;
 
 @property (nonatomic, strong, class) NSString *shell;
 @property (nonatomic, strong, class) NSDictionary<NSString *, NSString *> *environment;
