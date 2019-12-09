@@ -6,7 +6,7 @@
 //  Copyright © 2015年 alibaba-inc. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 //! Project version number for ObjCCommandLine.
 FOUNDATION_EXPORT double ObjCCommandLineVersionNumber;

@@ -6,7 +6,7 @@
 //  Copyright © 2019 dijkst. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 FOUNDATION_EXPORT NSArray<NSString *> *argumentParse(NSString *string);
 
