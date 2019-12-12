@@ -209,10 +209,18 @@ static BOOL         CMD;
         if ([self.delegate respondsToSelector:@selector(logOutputData:)]) {
             [self.delegate logOutputData:data];
         }
-        if ([self.delegate respondsToSelector:@selector(logOutputString:)]) {
+        if (self.logOutputDataBlock) {
+            self.logOutputDataBlock(data);
+        }
+        if ([self.delegate respondsToSelector:@selector(logOutputString:)] || self.logOutputStringBlock) {
             NSString *output = [self decodeData:data dryPool:&self->dryOutputData];
             if (output) {
-                [self.delegate logOutputString:output];
+                if ([self.delegate respondsToSelector:@selector(logOutputString:)]) {
+                    [self.delegate logOutputString:output];
+                }
+                if (self.logOutputStringBlock) {
+                    self.logOutputStringBlock(output);
+                }
             }
         }
         [(NSMutableData *)self.outputData appendData:data];
@@ -224,10 +232,18 @@ static BOOL         CMD;
         if ([self.delegate respondsToSelector:@selector(logErrorData:)]) {
             [self.delegate logErrorData:data];
         }
-        if ([self.delegate respondsToSelector:@selector(logErrorString:)]) {
+        if (self.logErrorDataBlock) {
+            self.logErrorDataBlock(data);
+        }
+        if ([self.delegate respondsToSelector:@selector(logErrorString:)] || self.logErrorStringBlock) {
             NSString *output = [self decodeData:data dryPool:&self->dryErrorData];
             if (output) {
-                [self.delegate logErrorString:output];
+                if ([self.delegate respondsToSelector:@selector(logErrorString:)]) {
+                    [self.delegate logErrorString:output];
+                }
+                if (self.logErrorStringBlock) {
+                    self.logErrorStringBlock(output);
+                }
             }
         }
         [(NSMutableData *) self.errorData appendData:data];

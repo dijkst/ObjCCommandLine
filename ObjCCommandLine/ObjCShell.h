@@ -28,6 +28,10 @@
 @property (nonatomic, readonly) int terminationStatus;
 
 @property (nonatomic, weak) id<ObjCShellDelegate> delegate;
+@property (nonatomic, copy) void (^logOutputStringBlock)(NSString *);
+@property (nonatomic, copy) void (^logErrorStringBlock)(NSString *);
+@property (nonatomic, copy) void (^logOutputDataBlock)(NSData *);
+@property (nonatomic, copy) void (^logErrorDataBlock)(NSData *);
 
 - (instancetype)init;
 - (instancetype)initWithTTY:(BOOL)tty;
