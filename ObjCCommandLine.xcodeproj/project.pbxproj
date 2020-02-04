@@ -21,6 +21,8 @@
 		AB85FC0A22FABE2100F6EBEE /* TTYShellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = AB85FC0822FABE2100F6EBEE /* TTYShellWrapper.m */; };
 		AB8B7C9B230EE04100019581 /* ObjCArgumentParser.h in Headers */ = {isa = PBXBuildFile; fileRef = AB8B7C99230EE04100019581 /* ObjCArgumentParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AB8B7C9C230EE04100019581 /* ObjCArgumentParser.m in Sources */ = {isa = PBXBuildFile; fileRef = AB8B7C9A230EE04100019581 /* ObjCArgumentParser.m */; };
+		ABD3A54223E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.h in Headers */ = {isa = PBXBuildFile; fileRef = ABD3A54023E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.h */; };
+		ABD3A54323E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD3A54123E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +42,8 @@
 		AB85FC0822FABE2100F6EBEE /* TTYShellWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TTYShellWrapper.m; sourceTree = "<group>"; };
 		AB8B7C99230EE04100019581 /* ObjCArgumentParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCArgumentParser.h; sourceTree = "<group>"; };
 		AB8B7C9A230EE04100019581 /* ObjCArgumentParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCArgumentParser.m; sourceTree = "<group>"; };
+		ABD3A54023E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSFileHandle+isReadableAddon.h"; sourceTree = "<group>"; };
+		ABD3A54123E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileHandle+isReadableAddon.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +91,8 @@
 				AB15DDDC1C1958A700DD1743 /* Info.plist */,
 				AB8B7C99230EE04100019581 /* ObjCArgumentParser.h */,
 				AB8B7C9A230EE04100019581 /* ObjCArgumentParser.m */,
+				ABD3A54023E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.h */,
+				ABD3A54123E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.m */,
 			);
 			path = ObjCCommandLine;
 			sourceTree = "<group>";
@@ -103,6 +109,7 @@
 				AB85FC0922FABE2100F6EBEE /* TTYShellWrapper.h in Headers */,
 				AB15DDDB1C1958A700DD1743 /* ObjCCommandLine.h in Headers */,
 				AB15DDE81C1958BE00DD1743 /* AMShellWrapper.h in Headers */,
+				ABD3A54223E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.h in Headers */,
 				AB85FC0622FAB9FB00F6EBEE /* ObjCShellWrapper.h in Headers */,
 				AB15DDF01C195DCF00DD1743 /* ObjCAppleScript.h in Headers */,
 				AB15DDEA1C1958BE00DD1743 /* ObjCShell.h in Headers */,
@@ -181,6 +188,7 @@
 				AB15DDF11C195DCF00DD1743 /* ObjCAppleScript.m in Sources */,
 				AB15DDED1C1958BE00DD1743 /* NSAppleEventDescriptor+ToObject.m in Sources */,
 				AB8B7C9C230EE04100019581 /* ObjCArgumentParser.m in Sources */,
+				ABD3A54323E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.m in Sources */,
 				AB85FC0A22FABE2100F6EBEE /* TTYShellWrapper.m in Sources */,
 				AB15DDEB1C1958BE00DD1743 /* ObjCShell.m in Sources */,
 			);

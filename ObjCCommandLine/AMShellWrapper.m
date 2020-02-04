@@ -29,6 +29,7 @@
 
 #import "AMShellWrapper.h"
 #import "ObjCShell.h"
+#import "NSFileHandle+isReadableAddon.h"
 
 @implementation AMShellWrapper
 
@@ -237,9 +238,11 @@
 
 - (void)waitData:(NSNotification *)aNotification {
     NSFileHandle *handle = aNotification.object;
-    NSData *data = [handle availableData];
-    if (data.length > 0) {
-        [self appendInput:data];
+    if (handle.readable) {
+        NSData *data = [handle availableData];
+        if (data.length > 0) {
+            [self appendInput:data];
+        }
     }
     [handle waitForDataInBackgroundAndNotify];
 }

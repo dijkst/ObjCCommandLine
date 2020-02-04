@@ -8,6 +8,7 @@
 
 #import "TTYShellWrapper.h"
 #import "ObjCShell.h"
+#import "NSFileHandle+isReadableAddon.h"
 
 #include <unistd.h>
 #include <util.h>
@@ -21,6 +22,7 @@
     NSString     *launchPath;
     NSArray      *arguments;
 
+    NSFileHandle *inputHandle;
     NSFileHandle *fileHandle;
     pid_t        childProcessID;
 
@@ -29,7 +31,7 @@
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleDataAvailableNotification object:[NSFileHandle fileHandleWithStandardInput]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleDataAvailableNotification object:inputHandle];
 }
 
 - (id)initWithLaunchPath:(NSString *)launch workingDirectory:(NSString *)directoryPath environment:(NSDictionary *)env arguments:(NSArray *)args context:(void *)pointer {
@@ -46,7 +48,7 @@
 
 - (void)startProcess {
     if (ObjCShell.isCMDEnvironment) {
-        NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
+        inputHandle = [NSFileHandle fileHandleWithStandardInput];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(getInput:) name:NSFileHandleDataAvailableNotification object:inputHandle];
     }
 
@@ -118,7 +120,9 @@
 
 - (void)getInput:(NSNotification *)aNotification {
     NSFileHandle *inputHandle = aNotification.object;
-    [self appendInput:inputHandle.availableData];
+    if (inputHandle.readable) {
+        [self appendInput:inputHandle.availableData];
+    }
     [inputHandle waitForDataInBackgroundAndNotify];
 }
 
