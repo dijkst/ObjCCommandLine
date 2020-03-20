@@ -67,7 +67,7 @@
         dispatch_async(dispatch_queue_create("TTY Shell Wait Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
             int status = 0;
             waitpid(self->childProcessID, &status, 0);
-            self.terminationStatus = status;
+            self.terminationStatus = WEXITSTATUS(status);
             self->taskDidTerminate = YES;
         });
     } else if (pid == 0) {
