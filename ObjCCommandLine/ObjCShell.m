@@ -2,8 +2,8 @@
 //
 
 #import "ObjCShell.h"
-#import "AMShellWrapper.h"
-#import "TTYShellWrapper.h"
+#import "TTYTerminal.h"
+#import "ForkTerminal.h"
 #import "ObjCArgumentParser.h"
 #include "sys/pipe.h"
 
@@ -32,11 +32,11 @@ static NSString     *SHELL;
 static NSDictionary *ENV;
 static BOOL         CMD;
 
-@interface ObjCShell () <ObjCShellWrapperDelegate> {
+@interface ObjCShell () <TerminalDelegate> {
     dispatch_semaphore_t sem;
 }
 
-@property (nonatomic, strong) NSObject<ObjCShellWrapperProtocol> *task;
+@property (nonatomic, strong) TerminalBase *task;
 @property (nonatomic, strong) dispatch_queue_t queue;
 
 @end
@@ -140,17 +140,20 @@ static BOOL         CMD;
     Class wrapper = nil;
     NSString *launch = [[self class] shell];
     if (_useTTY) {
-        wrapper = [TTYShellWrapper class];
-        args = argumentParse(command);
-        launch = [args firstObject];
+        self.logOutputStringBlock(@"Use TTY\n");
+        wrapper = [TTYTerminal class];
     } else {
-        wrapper = [AMShellWrapper class];
-        if (env || [[self class] isCMDEnvironment] || !self.useLoginEnironment) {
-            args = @[@"-c", command];
-        } else {
-            args = @[@"-l", @"-c", command];
-        }
+        self.logOutputStringBlock(@"Use NSTask\n");
+        wrapper = [ForkTerminal class];
+//        wrapper = [AMShellWrapper class];
+//        if (env || [[self class] isCMDEnvironment] || !self.useLoginEnironment) {
+//            args = @[@"-c", command];
+//        } else {
+//            args = @[@"-l", @"-c", command];
+//        }
     }
+    args = argumentParse(command);
+    launch = [args firstObject];
     self.task = [[wrapper alloc] initWithLaunchPath:launch
                                    workingDirectory:path
                                         environment:env
@@ -168,20 +171,20 @@ static BOOL         CMD;
     }
 
     runLoop = [NSRunLoop currentRunLoop];
-    if (_useTTY) {
-        rawSTDIN(^{
+//    if (_useTTY) {
+//        rawSTDIN(^{
             [self.task startProcess];
             while (!self.task.finish) {
                 [self->runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
             }
-        });
-    } else {
-        // 必须在主线程
-        [self.task performSelectorOnMainThread:@selector(startProcess) withObject:nil waitUntilDone:YES];
-        while (!self.task.finish) {
-            [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-        }
-    }
+//        });
+//    } else {
+//        // 必须在主线程
+//        [self.task performSelectorOnMainThread:@selector(startProcess) withObject:nil waitUntilDone:YES];
+//        while (!self.task.finish) {
+//            [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+//        }
+//    }
     self.outputString = [[[NSString alloc] initWithData:self.outputData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     self.errorString  = [[[NSString alloc] initWithData:self.errorData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
@@ -193,18 +196,18 @@ static BOOL         CMD;
 }
 
 #pragma mark - Private
-- (void)processStarted:(AMShellWrapper *)wrapper {
+- (void)processStarted:(TerminalBase *)wrapper {
 
 }
 
-- (void)processFinished:(AMShellWrapper *)wrapper withTerminationStatus:(int)resultCode {
+- (void)processFinished:(TerminalBase *)wrapper withTerminationStatus:(int)resultCode {
     dispatch_semaphore_signal(sem);
     if (runLoop) {
         CFRunLoopStop(runLoop.getCFRunLoop);
     }
 }
 
-- (void)process:(AMShellWrapper *)wrapper appendOutput:(NSData *)data {
+- (void)process:(TerminalBase *)wrapper appendOutput:(NSData *)data {
     dispatch_sync(_queue, ^{
         if ([self.delegate respondsToSelector:@selector(logOutputData:)]) {
             [self.delegate logOutputData:data];
@@ -227,7 +230,7 @@ static BOOL         CMD;
     });
 }
 
-- (void)process:(AMShellWrapper *)wrapper appendError:(NSData *)data {
+- (void)process:(TerminalBase *)wrapper appendError:(NSData *)data {
     dispatch_sync(_queue, ^{
         if ([self.delegate respondsToSelector:@selector(logErrorData:)]) {
             [self.delegate logErrorData:data];
