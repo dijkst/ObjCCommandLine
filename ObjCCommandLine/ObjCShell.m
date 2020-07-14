@@ -137,21 +137,8 @@ static BOOL         CMD;
     _errorData  = [NSMutableData data];
     if (!env) env = ENV;
     NSArray *args = nil;
-    Class wrapper = nil;
+    Class wrapper = _useTTY ? [TTYTerminal class] : [ForkTerminal class];
     NSString *launch = [[self class] shell];
-    if (_useTTY) {
-        self.logOutputStringBlock(@"Use TTY\n");
-        wrapper = [TTYTerminal class];
-    } else {
-        self.logOutputStringBlock(@"Use NSTask\n");
-        wrapper = [ForkTerminal class];
-//        wrapper = [AMShellWrapper class];
-//        if (env || [[self class] isCMDEnvironment] || !self.useLoginEnironment) {
-//            args = @[@"-c", command];
-//        } else {
-//            args = @[@"-l", @"-c", command];
-//        }
-    }
     args = argumentParse(command);
     launch = [args firstObject];
     self.task = [[wrapper alloc] initWithLaunchPath:launch
