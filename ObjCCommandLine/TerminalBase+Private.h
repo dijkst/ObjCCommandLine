@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stopProcess;
 
+- (BOOL)handleReadable:(NSFileHandle *)handle;
 - (void)watchSTDOUT:(NSFileHandle *)handle;
 - (void)watchSTDERR:(NSFileHandle *)handle;
 

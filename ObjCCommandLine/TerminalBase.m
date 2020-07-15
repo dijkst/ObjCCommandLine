@@ -104,9 +104,13 @@
     [inputHandle writeData:input];
 }
 
+- (BOOL)handleReadable:(NSFileHandle *)handle {
+    return !self->taskDidTerminate;
+}
+
 - (void)watchSTDOUT:(NSFileHandle *)handle {
     dispatch_async(dispatch_queue_create("STDOUT Reader Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
-        while (!self->taskDidTerminate) {
+        while ([self handleReadable:handle]) {
             [self appendOutput:handle.availableData];
         }
         self->stdoutEmpty = YES;
@@ -116,7 +120,7 @@
 
 - (void)watchSTDERR:(NSFileHandle *)handle {
     dispatch_async(dispatch_queue_create("STDERR Reader Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
-        while (!self->taskDidTerminate) {
+        while ([self handleReadable:handle]) {
             [self appendError:handle.availableData];
         }
         self->stderrEmpty = YES;

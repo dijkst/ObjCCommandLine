@@ -8,6 +8,7 @@
 
 #import "ForkTerminal.h"
 #import "TerminalBase+Private.h"
+#import "NSFileHandle+isReadableAddon.h"
 #import "ObjCShell.h"
 
 @implementation ForkTerminal
@@ -37,6 +38,8 @@
             waitpid(self->childProcessID, &status, 0);
             self.terminationStatus = WEXITSTATUS(status);
             self->taskDidTerminate = YES;
+            while (self->outHandle.readable) {}
+            while (self->errorHandle.readable) {}
             close(outfd);
             close(errfd);
         });
@@ -57,6 +60,10 @@
     } else {
         NSLog(@"error");
     }
+}
+
+- (BOOL)handleReadable:(NSFileHandle *)handle {
+    return [super handleReadable:handle] || handle.readable;
 }
 
 @end
