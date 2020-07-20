@@ -10,6 +10,7 @@
 #import "TerminalBase+Private.h"
 #import "NSFileHandle+isReadableAddon.h"
 #import "ObjCShell.h"
+#include "sys/pipe.h"
 
 @implementation ForkTerminal
 
@@ -27,19 +28,33 @@
         int outfd = pipefd[0];
         int errfd = pipefd[2];
 
-        outHandle = [[NSFileHandle alloc] initWithFileDescriptor:outfd closeOnDealloc:YES];
-        [self watchSTDOUT:outHandle];
+        dispatch_async(dispatch_queue_create("STDOUT Reader Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
+            unsigned char buf[BIG_PIPE_SIZE];
+            while (!self->taskDidTerminate) {
+                ssize_t i = read(outfd, &buf, BIG_PIPE_SIZE);
+                NSData *data = [NSData dataWithBytes:buf length:i];
+                [self appendOutput:data];
+            }
+            self->stdoutEmpty = YES;
+            [self cleanup];
+        });
 
-        errorHandle = [[NSFileHandle alloc] initWithFileDescriptor:errfd closeOnDealloc:YES];
-        [self watchSTDERR:errorHandle];
+        dispatch_async(dispatch_queue_create("STDERR Reader Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
+            unsigned char buf[BIG_PIPE_SIZE];
+            while (!self->taskDidTerminate) {
+                ssize_t i = read(errfd, &buf, BIG_PIPE_SIZE);
+                NSData *data = [NSData dataWithBytes:buf length:i];
+                [self appendError:data];
+            }
+            self->stderrEmpty = YES;
+            [self cleanup];
+        });
 
         dispatch_async(dispatch_queue_create("Shell Wait Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
             int status = 0;
             waitpid(self->childProcessID, &status, 0);
             self.terminationStatus = WEXITSTATUS(status);
             self->taskDidTerminate = YES;
-            while (self->outHandle.readable) {}
-            while (self->errorHandle.readable) {}
             close(outfd);
             close(errfd);
         });
