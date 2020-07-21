@@ -11,6 +11,7 @@
 #import "NSFileHandle+isReadableAddon.h"
 #import "ObjCShell.h"
 #include "sys/pipe.h"
+#include "sys/ioctl.h"
 
 @implementation ForkTerminal
 
@@ -29,9 +30,9 @@
         int errfd = pipefd[2];
 
         dispatch_async(dispatch_queue_create("STDOUT Reader Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
-            unsigned char buf[BIG_PIPE_SIZE];
+            unsigned char buf[PIPE_SIZE];
             while (!self->taskDidTerminate) {
-                ssize_t i = read(outfd, &buf, BIG_PIPE_SIZE);
+                ssize_t i = read(outfd, &buf, PIPE_SIZE);
                 NSData *data = [NSData dataWithBytes:buf length:i];
                 [self appendOutput:data];
             }
@@ -40,9 +41,9 @@
         });
 
         dispatch_async(dispatch_queue_create("STDERR Reader Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
-            unsigned char buf[BIG_PIPE_SIZE];
+            unsigned char buf[PIPE_SIZE];
             while (!self->taskDidTerminate) {
-                ssize_t i = read(errfd, &buf, BIG_PIPE_SIZE);
+                ssize_t i = read(errfd, &buf, PIPE_SIZE);
                 NSData *data = [NSData dataWithBytes:buf length:i];
                 [self appendError:data];
             }
@@ -54,6 +55,17 @@
             int status = 0;
             waitpid(self->childProcessID, &status, 0);
             self.terminationStatus = WEXITSTATUS(status);
+
+            ssize_t outfdSize = PIPE_SIZE;
+            while (outfdSize > 0) {
+                ioctl(outfd, FIONREAD, &outfdSize);
+            }
+
+            ssize_t errfdSize = PIPE_SIZE;
+            while (errfdSize > 0) {
+                ioctl(errfd, FIONREAD, &errfdSize);
+            }
+
             self->taskDidTerminate = YES;
             close(outfd);
             close(errfd);
