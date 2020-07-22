@@ -159,12 +159,12 @@ static BOOL         CMD;
 
     runLoop = [NSRunLoop currentRunLoop];
 //    if (_useTTY) {
-//        rawSTDIN(^{
+        rawSTDIN(^{
             [self.task startProcess];
             while (!self.task.finish) {
                 [self->runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
             }
-//        });
+        });
 //    } else {
 //        // 必须在主线程
 //        [self.task performSelectorOnMainThread:@selector(startProcess) withObject:nil waitUntilDone:YES];
