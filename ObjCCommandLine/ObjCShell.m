@@ -158,14 +158,17 @@ static BOOL         CMD;
     }
 
     runLoop = [NSRunLoop currentRunLoop];
-//    if (_useTTY) {
-        rawSTDIN(^{
-            [self.task startProcess];
-            while (!self.task.finish) {
-                [self->runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-            }
-        });
-//    } else {
+    void(^block)(void) = ^{
+        [self.task startProcess];
+        while (!self.task.finish) {
+            [self->runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+    };
+    if (_useTTY) {
+        rawSTDIN(block);
+    } else {
+        block();
+    }
 //        // 必须在主线程
 //        [self.task performSelectorOnMainThread:@selector(startProcess) withObject:nil waitUntilDone:YES];
 //        while (!self.task.finish) {
