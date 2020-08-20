@@ -20,8 +20,8 @@
 @property (nonatomic, assign) BOOL useTTY;
 @property (nonatomic, assign) BOOL useLoginEnironment;
 
-@property (nonatomic, strong) NSString *outputString;
-@property (nonatomic, strong) NSString *errorString;
+@property (nonatomic, readonly) NSString *outputString;
+@property (nonatomic, readonly) NSString *errorString;
 @property (nonatomic, readonly) NSData *outputData;
 @property (nonatomic, readonly) NSData *errorData;
 

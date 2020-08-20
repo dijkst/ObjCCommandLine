@@ -59,6 +59,10 @@ static BOOL         CMD;
         _queue = dispatch_queue_create("shell.output", NULL);
         _useLoginEnironment = YES;
         _useTTY = tty;
+        _outputData = [NSMutableData data];
+        _errorData  = [NSMutableData data];
+        _outputString = @"";
+        _errorString = @"";
     }
     return self;
 }
@@ -175,8 +179,8 @@ static BOOL         CMD;
 //            [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
 //        }
 //    }
-    self.outputString = [[[NSString alloc] initWithData:self.outputData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    self.errorString  = [[[NSString alloc] initWithData:self.errorData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    _outputString = [[[NSString alloc] initWithData:self.outputData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    _errorString  = [[[NSString alloc] initWithData:self.errorData encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
     return self.task.terminationStatus;
 }
