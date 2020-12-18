@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		AB15DDDB1C1958A700DD1743 /* ObjCCommandLine.h in Headers */ = {isa = PBXBuildFile; fileRef = AB15DDDA1C1958A700DD1743 /* ObjCCommandLine.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AB15DDE81C1958BE00DD1743 /* AMShellWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = AB15DDE21C1958BE00DD1743 /* AMShellWrapper.h */; };
 		AB15DDEA1C1958BE00DD1743 /* ObjCShell.h in Headers */ = {isa = PBXBuildFile; fileRef = AB15DDE41C1958BE00DD1743 /* ObjCShell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AB15DDEB1C1958BE00DD1743 /* ObjCShell.m in Sources */ = {isa = PBXBuildFile; fileRef = AB15DDE51C1958BE00DD1743 /* ObjCShell.m */; };
 		AB15DDEC1C1958BE00DD1743 /* NSAppleEventDescriptor+ToObject.h in Headers */ = {isa = PBXBuildFile; fileRef = AB15DDE61C1958BE00DD1743 /* NSAppleEventDescriptor+ToObject.h */; };
@@ -32,8 +31,6 @@
 		AB15DDD71C1958A700DD1743 /* ObjCCommandLine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ObjCCommandLine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB15DDDA1C1958A700DD1743 /* ObjCCommandLine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCCommandLine.h; sourceTree = "<group>"; };
 		AB15DDDC1C1958A700DD1743 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AB15DDE21C1958BE00DD1743 /* AMShellWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMShellWrapper.h; sourceTree = "<group>"; };
-		AB15DDE31C1958BE00DD1743 /* AMShellWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMShellWrapper.m; sourceTree = "<group>"; };
 		AB15DDE41C1958BE00DD1743 /* ObjCShell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCShell.h; sourceTree = "<group>"; };
 		AB15DDE51C1958BE00DD1743 /* ObjCShell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjCShell.m; sourceTree = "<group>"; };
 		AB15DDE61C1958BE00DD1743 /* NSAppleEventDescriptor+ToObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAppleEventDescriptor+ToObject.h"; sourceTree = "<group>"; };
@@ -45,6 +42,7 @@
 		AB559F3524BB1EB60074FF98 /* TerminalBase+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TerminalBase+Private.h"; sourceTree = "<group>"; };
 		AB559F3924BB20B40074FF98 /* ForkTerminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ForkTerminal.h; sourceTree = "<group>"; };
 		AB559F3A24BB20B40074FF98 /* ForkTerminal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ForkTerminal.m; sourceTree = "<group>"; };
+		AB5A5167258CB50100B52C65 /* ObjCCommandLine.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = ObjCCommandLine.podspec; sourceTree = "<group>"; };
 		AB85FC0722FABE2100F6EBEE /* TTYTerminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TTYTerminal.h; sourceTree = "<group>"; };
 		AB85FC0822FABE2100F6EBEE /* TTYTerminal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TTYTerminal.m; sourceTree = "<group>"; };
 		AB8B7C99230EE04100019581 /* ObjCArgumentParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCArgumentParser.h; sourceTree = "<group>"; };
@@ -67,6 +65,7 @@
 		AB15DDCD1C1958A700DD1743 = {
 			isa = PBXGroup;
 			children = (
+				AB5A5167258CB50100B52C65 /* ObjCCommandLine.podspec */,
 				AB15DDD91C1958A700DD1743 /* ObjCCommandLine */,
 				AB15DDD81C1958A700DD1743 /* Products */,
 			);
@@ -86,8 +85,6 @@
 				AB559F3124BB1B350074FF98 /* TerminalBase.h */,
 				AB559F3524BB1EB60074FF98 /* TerminalBase+Private.h */,
 				AB559F3224BB1B350074FF98 /* TerminalBase.m */,
-				AB15DDE21C1958BE00DD1743 /* AMShellWrapper.h */,
-				AB15DDE31C1958BE00DD1743 /* AMShellWrapper.m */,
 				AB85FC0722FABE2100F6EBEE /* TTYTerminal.h */,
 				AB85FC0822FABE2100F6EBEE /* TTYTerminal.m */,
 				AB559F3924BB20B40074FF98 /* ForkTerminal.h */,
@@ -121,7 +118,6 @@
 				AB15DDEC1C1958BE00DD1743 /* NSAppleEventDescriptor+ToObject.h in Headers */,
 				AB85FC0922FABE2100F6EBEE /* TTYTerminal.h in Headers */,
 				AB15DDDB1C1958A700DD1743 /* ObjCCommandLine.h in Headers */,
-				AB15DDE81C1958BE00DD1743 /* AMShellWrapper.h in Headers */,
 				ABD3A54223E9B74C00BE9BB1 /* NSFileHandle+isReadableAddon.h in Headers */,
 				AB559F3724BB1EB60074FF98 /* TerminalBase+Private.h in Headers */,
 				AB15DDF01C195DCF00DD1743 /* ObjCAppleScript.h in Headers */,
