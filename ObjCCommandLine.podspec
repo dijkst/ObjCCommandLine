@@ -15,7 +15,7 @@ Pod::Spec.new do |spec|
   spec.platform     = :osx, '10.15'
   spec.author       = { "Whirlwind James" => "whirlwindjames@foxmail.com" }
 
-  spec.source       = { :git => "git@github.com:dijkst/ObjCCommandLine.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/dijkst/ObjCCommandLine.git", :tag => "v#{spec.version}" }
 
   spec.source_files = "ObjCCommandLine", "ObjCCommandLine/**/*.{h,m}"
 
