@@ -26,14 +26,9 @@
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleDataAvailableNotification object:inputHandle];
 }
 
 - (void)startProcess {
-    if (ObjCShell.isCMDEnvironment) {
-        inputHandle = [NSFileHandle fileHandleWithStandardInput];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(getInput:) name:NSFileHandleDataAvailableNotification object:inputHandle];
-    }
 }
 
 - (void)runChildProcess {
@@ -78,14 +73,6 @@
 
     // we need to schedule the file handle go read more data in the background again.
     [notificationObject readInBackgroundAndNotify];
-}
-
-- (void)getInput:(NSNotification *)aNotification {
-    NSFileHandle *inputHandle = aNotification.object;
-    if (inputHandle.readable && !self.finish) {
-        [self appendInput:inputHandle.availableData];
-    }
-    [inputHandle waitForDataInBackgroundAndNotify];
 }
 
 - (void)appendOutput:(NSData *)data {

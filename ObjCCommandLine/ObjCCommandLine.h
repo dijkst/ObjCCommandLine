@@ -19,3 +19,4 @@ FOUNDATION_EXPORT const unsigned char ObjCCommandLineVersionString[];
 #import <ObjCCommandLine/ObjCArgumentParser.h>
 #import <ObjCCommandLine/ObjCShell.h>
 #import <ObjCCommandLine/ObjCAppleScript.h>
+#import <ObjCCommandLine/NSFileHandle+isReadableAddon.h>

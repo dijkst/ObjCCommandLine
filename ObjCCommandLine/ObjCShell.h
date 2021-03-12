@@ -51,6 +51,7 @@
 - (int)executeCommand:(NSString *)command inWorkingDirectory:(NSString *)path env:(NSDictionary *)env;
 
 - (void)cancel;
+- (void)appendInput:(NSData *)input;
 
 @end
 

@@ -153,14 +153,6 @@ static BOOL         CMD;
 
     self.task.delegate = self;
 
-    if (ObjCShell.isCMDEnvironment) {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
-            [inputHandle waitForDataInBackgroundAndNotify];
-        });
-    }
-
     runLoop = [NSRunLoop currentRunLoop];
     void(^block)(void) = ^{
         [self.task startProcess];
@@ -285,6 +277,10 @@ static BOOL         CMD;
         }
     }
     return [[NSString alloc] initWithData:fullData encoding:NSUTF8StringEncoding];
+}
+
+- (void)appendInput:(NSData *)input {
+    [self.task appendInput:input];
 }
 
 @end
