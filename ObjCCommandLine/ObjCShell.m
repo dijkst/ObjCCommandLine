@@ -110,12 +110,20 @@ static BOOL         CMD;
     return [self commandWithAdministrator:command sudo:[self isCMDEnvironment] prompt:nil];
 }
 
++ (NSString *)commandWithAdministrator:(NSString *)command prompt:(NSString *)prompt {
+    return [self commandWithAdministrator:command sudo:[self isCMDEnvironment] prompt:prompt];
+}
+
 + (NSString *)commandWithAdministrator:(NSString *)command sudo:(BOOL)sudo prompt:(NSString *)prompt {
     if (sudo) {
-        if (prompt) {
-            return [NSString stringWithFormat:@"sudo -S -p \"%@\" -- sh -c \"%@\"", prompt, command];
+        NSString *sudoCMD = @"sudo";
+        if ([[[NSProcessInfo processInfo] environment] objectForKey:@"SUDO_ASKPASS"] != nil) {
+            sudoCMD = [sudoCMD stringByAppendingString:@" -A"];
         }
-        return [NSString stringWithFormat:@"sudo -S -- sh -c \"%@\"", command];
+        if (prompt) {
+            return [NSString stringWithFormat:@"%@ -S -p \"%@\" -- sh -c \"%@\"", sudoCMD, prompt, command];
+        }
+        return [NSString stringWithFormat:@"%@ -S -- sh -c \"%@\"", sudoCMD, command];
     }
     if (prompt) {
         return [NSString stringWithFormat:@"osascript -e \"do shell script \\\"%@\\\" with prompt \\\"%@\\\" with administrator privileges\"", command, prompt];
