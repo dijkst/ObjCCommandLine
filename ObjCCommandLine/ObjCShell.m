@@ -116,14 +116,17 @@ static BOOL         CMD;
 
 + (NSString *)commandWithAdministrator:(NSString *)command sudo:(BOOL)sudo prompt:(NSString *)prompt {
     if (sudo) {
-        NSString *sudoCMD = @"sudo";
+        NSMutableString *cmd = [NSMutableString stringWithString:@"sudo"];
         if ([[[NSProcessInfo processInfo] environment] objectForKey:@"SUDO_ASKPASS"] != nil) {
-            sudoCMD = [sudoCMD stringByAppendingString:@" -A"];
+            [cmd appendString:@" -A"];
+        } else {
+            [cmd appendString:@" -S"];
         }
         if (prompt) {
-            return [NSString stringWithFormat:@"%@ -S -p \"%@\" -- sh -c \"%@\"", sudoCMD, prompt, command];
+            [cmd appendFormat:@" -p \"%@\"", prompt];
         }
-        return [NSString stringWithFormat:@"%@ -S -- sh -c \"%@\"", sudoCMD, command];
+        [cmd appendFormat:@" -- sh -c \"%@\"", command];
+        return cmd;
     }
     if (prompt) {
         return [NSString stringWithFormat:@"osascript -e \"do shell script \\\"%@\\\" with prompt \\\"%@\\\" with administrator privileges\"", command, prompt];
