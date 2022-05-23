@@ -2,7 +2,7 @@
 Pod::Spec.new do |spec|
 
   spec.name         = "ObjCCommandLine"
-  spec.version      = "0.0.4"
+  spec.version      = "0.0.5"
   spec.summary      = "Command Line Wrapper."
 
   spec.description  = <<-DESC
