@@ -152,7 +152,7 @@ static BOOL         CMD;
     _errorData  = [NSMutableData data];
     if (!env) env = ENV;
     NSArray *args = nil;
-    Class wrapper = _useTTY ? [TTYTerminal class] : [ForkTerminal class];
+    Class wrapper = _useTTY && !self.detach ? [TTYTerminal class] : [ForkTerminal class];
     NSString *launch = [[self class] shell];
     args = argumentParse(command);
     launch = [args firstObject];
@@ -161,20 +161,25 @@ static BOOL         CMD;
                                         environment:env
                                           arguments:args
                                             context:NULL];
-
-    self.task.delegate = self;
-
-    runLoop = [NSRunLoop currentRunLoop];
-    void(^block)(void) = ^{
+    self.task.detach = self.detach;
+    if (self.detach) {
         [self.task startProcess];
-        while (!self.task.finish) {
-            [self->runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-        }
-    };
-    if (_useTTY) {
-        rawSTDIN(block);
+        return 0;
     } else {
-        block();
+        self.task.delegate = self;
+
+        runLoop = [NSRunLoop currentRunLoop];
+        void(^block)(void) = ^{
+            [self.task startProcess];
+            while (!self.task.finish) {
+                [self->runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+            }
+        };
+        if (_useTTY) {
+            rawSTDIN(block);
+        } else {
+            block();
+        }
     }
 //        // 必须在主线程
 //        [self.task performSelectorOnMainThread:@selector(startProcess) withObject:nil waitUntilDone:YES];

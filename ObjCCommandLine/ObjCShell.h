@@ -19,6 +19,7 @@
 
 @property (nonatomic, assign) BOOL useTTY;
 @property (nonatomic, assign) BOOL useLoginEnironment;
+@property (nonatomic, assign) BOOL detach;
 
 @property (nonatomic, readonly) NSString *outputString;
 @property (nonatomic, readonly) NSString *errorString;

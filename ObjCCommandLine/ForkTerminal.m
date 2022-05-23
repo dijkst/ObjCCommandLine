@@ -17,7 +17,14 @@
 
 - (void)startProcess {
     [super startProcess];
+    if (self.detach) {
+        [self startProcessWithDetachMode];
+    } else {
+        [self startProcessWithAttachMode];
+    }
+}
 
+- (void)startProcessWithAttachMode {
     int pipefd[4];
     pipe(pipefd);
     pipe(pipefd + 2);
@@ -26,6 +33,7 @@
     pid_t pid = fork();
     if (pid > 0) {
         childProcessID = pid;
+
         int outfd = pipefd[0];
         int errfd = pipefd[2];
 
@@ -82,6 +90,29 @@
 
         dup2(saved_stdin, STDIN_FILENO);
         close(saved_stdin);
+
+        [self runChildProcess];
+    } else {
+        NSLog(@"error");
+    }
+}
+
+- (void)startProcessWithDetachMode {
+    pid_t pid = fork();
+    if (pid > 0) {
+        childProcessID = pid;
+    } else if (pid == 0) {
+        int stdoutId = open("/dev/null", O_WRONLY);
+        dup2(stdoutId, STDOUT_FILENO);
+        close(stdoutId);
+
+        int stderrId = open("/dev/null", O_WRONLY);
+        dup2(stderrId, STDERR_FILENO);
+        close(stderrId);
+
+        int stdinId = open("/dev/null", O_RDONLY);
+        dup2(stdinId, STDIN_FILENO);
+        close(stdinId);
 
         [self runChildProcess];
     } else {

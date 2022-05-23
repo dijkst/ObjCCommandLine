@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id<TerminalDelegate> delegate;
 @property (nonatomic, assign) int terminationStatus;
 
+@property (nonatomic, assign) BOOL detach;
+
 - (id)initWithLaunchPath:(NSString *)launch
         workingDirectory:(NSString * __nullable)directoryPath
              environment:(NSDictionary * __nullable)env
