@@ -88,6 +88,10 @@
 }
 
 - (void)appendInput:(nonnull NSData *)input {
+    if (fcntl(inputHandle.fileDescriptor, F_GETFL) < 0 && errno == EBADF) {
+        // file descriptor is invalid or closed
+        return;
+    }
     [inputHandle writeData:input];
 }
 
@@ -121,8 +125,8 @@
 
 - (void)cleanup {
     if (!stdoutEmpty || !stderrEmpty) { return; }
-    [self.delegate processFinished:self withTerminationStatus:self.terminationStatus];
     self.finish = YES;
+    [self.delegate processFinished:self withTerminationStatus:self.terminationStatus];
 }
 
 @end

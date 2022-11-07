@@ -51,6 +51,11 @@
         dispatch_async(dispatch_queue_create("STDERR Reader Thread", DISPATCH_QUEUE_CONCURRENT), ^(void) {
             unsigned char buf[PIPE_SIZE];
             while (!self->taskDidTerminate) {
+                if (fcntl(errfd, F_GETFL) < 0 && errno == EBADF) {
+                    // file descriptor is invalid or closed
+                    break;
+                }
+
                 ssize_t i = read(errfd, &buf, PIPE_SIZE);
                 NSData *data = [NSData dataWithBytes:buf length:i];
                 [self appendError:data];
@@ -66,6 +71,11 @@
 
             ssize_t outfdSize = PIPE_SIZE;
             while (outfdSize > 0) {
+                if (fcntl(outfd, F_GETFL) < 0 && errno == EBADF) {
+                    // file descriptor is invalid or closed
+                    break;
+                }
+
                 ioctl(outfd, FIONREAD, &outfdSize);
             }
 
