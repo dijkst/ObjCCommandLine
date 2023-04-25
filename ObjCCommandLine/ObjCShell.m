@@ -20,11 +20,11 @@ void rawSTDIN(void(^block)(void)) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldSettings);
 }
 
-void storeSTDIN() {
+void storeSTDIN(void) {
     tcgetattr(STDIN_FILENO, &STDINSettings);
 }
 
-void resetSTDIN() {
+void resetSTDIN(void) {
     tcsetattr(STDIN_FILENO, TCSANOW, &STDINSettings);
 }
 
