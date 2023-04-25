@@ -41,8 +41,10 @@
             unsigned char buf[PIPE_SIZE];
             while (!self->taskDidTerminate) {
                 ssize_t i = read(outfd, &buf, PIPE_SIZE);
-                NSData *data = [NSData dataWithBytes:buf length:i];
-                [self appendOutput:data];
+                if (i > 0) {
+                    NSData *data = [NSData dataWithBytes:buf length:i];
+                    [self appendOutput:data];
+                }
             }
             self->stdoutEmpty = YES;
             [self cleanup];
@@ -57,8 +59,10 @@
                 }
 
                 ssize_t i = read(errfd, &buf, PIPE_SIZE);
-                NSData *data = [NSData dataWithBytes:buf length:i];
-                [self appendError:data];
+                if (i > 0) {
+                    NSData *data = [NSData dataWithBytes:buf length:i];
+                    [self appendError:data];
+                }
             }
             self->stderrEmpty = YES;
             [self cleanup];
