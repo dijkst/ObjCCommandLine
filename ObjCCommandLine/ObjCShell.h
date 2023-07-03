@@ -17,6 +17,9 @@
 
 @interface ObjCShell : NSObject
 
+// Adjust the terminal screen width, -1 => screenWidth - 1.
+@property (nonatomic, assign) NSInteger screenWidthDelta;
+
 @property (nonatomic, assign) BOOL useTTY;
 @property (nonatomic, assign) BOOL useLoginEnironment;
 @property (nonatomic, assign) BOOL detach;

@@ -161,6 +161,7 @@ static BOOL         CMD;
                                         environment:env
                                           arguments:args
                                             context:NULL];
+    self.task.screenWidthDelta = self.screenWidthDelta;
     self.task.detach = self.detach;
     if (self.detach) {
         [self.task startProcess];

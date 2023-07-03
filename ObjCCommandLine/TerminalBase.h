@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface TerminalBase : NSObject
 
+@property (nonatomic, assign) NSInteger screenWidthDelta;
+
 @property (nonatomic, assign) BOOL finish;
 
 @property (nonatomic, weak) id<TerminalDelegate> delegate;

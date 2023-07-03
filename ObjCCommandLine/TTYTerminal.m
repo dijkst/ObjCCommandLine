@@ -14,15 +14,20 @@
 #include <unistd.h>
 #include <util.h>
 #include <termios.h>
+#include <sys/ioctl.h>
 
 @implementation TTYTerminal
 
 - (void)startProcess {
     [super startProcess];
 
+    struct winsize size;
+    ioctl(1, TIOCGWINSZ, &size);
+    size.ws_xpixel -= self.screenWidthDelta * size.ws_xpixel / size.ws_col;
+    size.ws_col -= self.screenWidthDelta;
     int amaster;
 
-    pid_t pid = forkpty(&amaster, nil, nil, nil);
+    pid_t pid = forkpty(&amaster, nil, nil, &size);
     if (pid > 0) {
         childProcessID = pid;
 
